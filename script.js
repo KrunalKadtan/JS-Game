@@ -5,12 +5,27 @@ const modal = document.querySelector('.modal');
 const startGameModal = document.querySelector('.start-game');
 const gameOverModal = document.querySelector('.game-over');
 
+const highScoreElement = document.querySelector('#high-score');
+const scoreElement = document.querySelector('#score');
+const timeElement = document.querySelector('#time');
+
 const blockHeight = 50;
 const blockWidth = 50;
 
+let highScore = JSON.parse(localStorage.getItem('High Score')) || 0;
+let score = 0;
+let time = `00:00`;
+
+highScoreElement.innerText = highScore;
+scoreElement.innerText = score;
+timeElement.innerText = time;
+
 const cols = Math.floor(board.clientWidth / blockWidth);
 const rows = Math.floor(board.clientHeight / blockHeight);
+
 let intervalId = null;
+let timerIntervalId = null;
+
 let food = {
   x: Math.floor(Math.random() * rows),
   y: Math.floor(Math.random() * cols),
@@ -62,6 +77,7 @@ function render() {
     };
   }
 
+  // Out of Boundary Logic
   if (head.x < 0 || head.x >= rows || head.y < 0 || head.y >= cols) {
     clearInterval(intervalId);
     modal.style.display = 'flex';
@@ -70,6 +86,7 @@ function render() {
     return;
   }
 
+  // Food Consume Logic
   if (food.x === head.x && food.y === head.y) {
     blocks[`${food.x},${food.y}`].classList.remove('food');
     food = {
@@ -78,6 +95,15 @@ function render() {
     }
 
     snake.push(head);
+
+    score += 10;
+    scoreElement.innerText = score;
+
+    if (score > highScore) {
+      highScore = score;
+      highScoreElement.innerText = highScore;
+      localStorage.setItem('High Score', highScore.toString());
+    }
   }
   
   snake.forEach(segment => {
@@ -94,6 +120,27 @@ function render() {
 startButton.addEventListener('click', () => {
   modal.style.display = 'none';
   intervalId = setInterval(() => render(), 300);
+  timerIntervalId = setInterval(() => {
+    let [min, sec] = time.split(":").map(Number);
+
+    if (sec === 59) {
+      min++;
+      sec = 0;
+    } else {
+      sec++;
+    }
+
+    if (min < 10) {
+      min = `0${min}`;
+    }
+
+    if (sec < 10) {
+      sec = `0${sec}`;
+    }
+
+    time = `${min}:${sec}`;
+    timeElement.innerText = time;
+  }, 1000);
 })
 
 restartButton.addEventListener('click', restartGame);
@@ -105,6 +152,12 @@ function restartGame() {
   })
   modal.style.display = 'none';
   direction = 'down';
+  time = `00:00`
+  timeElement.innerText = time;
+  score = 0;
+  scoreElement.innerText = score;
+  highScore = JSON.parse(localStorage.getItem('High Score'));
+  highScoreElement.innerText = highScore;
   snake = [ 
     { x: 1, y: 5 } 
   ];

@@ -117,7 +117,8 @@ section .infos {
 }
 
 .btn {
-  padding: var(--space-s) var(--space-md);
+  font-size: 28px;
+  padding: var(--space-md) var(--space-xl);
   border: none;
   border-radius: var(--border-radius-s);
   cursor: pointer;
@@ -126,4 +127,8 @@ section .infos {
 
 .btn:hover {
   transform: scale(1.1);
+}
+
+.modal div h3 {
+  font-size: 64px;
 }
